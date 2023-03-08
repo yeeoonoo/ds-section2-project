@@ -87,7 +87,7 @@
   ![image](https://user-images.githubusercontent.com/110115061/221490124-46b1050b-e4bb-45fd-be8f-e2af713ef86a.png)  
   ![image](https://user-images.githubusercontent.com/110115061/221490150-a97e6014-ce5f-4d44-9035-713b552b951f.png)  
 
-### ※ 전처리 후 : 21개 컬럼 59,400개 행 데이터셋 
+#### ※ 전처리 후 : 21개 컬럼 59,400개 행 데이터셋 
 ![image](https://user-images.githubusercontent.com/110115061/221491352-424caf71-109d-4049-8d1e-186fd2f4613b.png)  
 - 타겟 컬럼 : status (수자원의 작동여부, 수리 필요 여부)
 
@@ -108,27 +108,90 @@
 - annually, per bucket, monthly 단위로 이용료는 내는 수자원이 잘 작동하는 비율이 높았음
 - 이용료가 없거나 지출방식이 불분명한 경우 작동불가한 수자원이 더 많은 것을 확인할 수 있음
 
-### ※ 수자원의 유지보수와 더불어 이용자의 자립의식 고취를 위해서도 **소정의 이용료를 부과**하는 방식이 공익을 위해 중요함
-### ※ 향 후 수자원을 수리하거나 재설치 차 방문하는 경우, 설치 및 유지보수 뿐 아니라 **커뮤니티 차원의 우물관리교육을 함께 진행**하고 실행여부를 모니터링하는 것이 좋을 듯 함
+#### ※ 수자원의 유지보수와 더불어 이용자의 자립의식 고취를 위해서도 **소정의 이용료를 부과**하는 방식이 공익을 위해 중요함
+#### ※ 향 후 수자원을 수리하거나 재설치 차 방문하는 경우, 설치 및 유지보수 뿐 아니라 **커뮤니티 차원의 우물관리교육을 함께 진행**하고 실행여부를 모니터링하는 것이 좋을 듯 함
 
-### 3.2.3. 오래된 수자원일수록 작동이 되지 않는 경우가 많지 않을까?
+### 3.2.3. 오래된 수자원일수록 작동이 되지 않는 경우가 많지 않을까?  
+![image](https://user-images.githubusercontent.com/110115061/223608330-95d6b9b1-162e-4f3d-95e6-b651db2d11c8.png)
 - 'unknown'의 경우 정확한 설치년도를 알 수 없음
 - 예상대로 오래된 수자원일수록 작동불가의 미율이 더 높고, 최근에 설치했을수록 잘 작동하는 비율이 월등히 높음
 - **각 지역별 오래된 수자원들의 상태조사를 별도로 실시**하는 것도 유지보수차원에서 좋은 대처 방안이 될 것으로 보임
-![image](https://user-images.githubusercontent.com/110115061/223608178-1bbed1d3-a537-4bfe-b07d-04261c96eca7.png)  
 
+<br/>
 
-## 3.2. 모델링
-### 모델링 전 전처리
-- 타겟 클래스 확인 후 데이터를 목적에 따라 분할
-- 학습용, 검증용, 평가용 데이터 비율을 분할 전과 동일하게 유지
+## 3.2. 모델링 전 전처리
+- 타겟 클래스 확인 후 데이터를 목적에 따라 분할  
+![image](https://user-images.githubusercontent.com/110115061/223610579-755aba49-177d-49b1-bc3d-62e64f2ff23d.png)  
+- 학습용, 검증용, 평가용 데이터 분할, 학습용 데이터의 타겟 클래스 비율은 분할 전과 동일하게 유지  
+![image](https://user-images.githubusercontent.com/110115061/223610751-ff70ea09-55d4-4408-85fe-5f17fdcd7cf8.png)  
 - 타겟 컬럼과 특성컬럼 X,y로 분할
 
+<br/>
+
+## 3.3. 모델링
+### 3.3.1. 기준모델 : Random Rate Classifier
+![image](https://user-images.githubusercontent.com/110115061/223614316-bf33026c-58a5-4c1b-ab5d-4b6ee4fa1586.png)   
+- 기준모델은 앞으로 구현할 모델 성능의 최소 기준을 의미함
+- 기준모델의 정확도는 44.786%
+
+### 3.3.2. RandomForestClassifier
+![image](https://user-images.githubusercontent.com/110115061/223614517-2c2e43df-8305-48a2-aea8-969cab163986.png)  
+- 집단지성의 긍정적 효과를 얻을 수 있는 RandomForest모델은 간단한 구현에도 불구하고 좋은 성능을 보여주며, 다중분류 문제에도 별다른 설정이 필요없이 모델링이 가능함  
+![image](https://user-images.githubusercontent.com/110115061/223614687-29e937ee-3d3c-4901-a7ab-46cc4579c486.png)  
+- 모델의 성능을 높일 수 있는 RandomizedSearchCV 를 통해 모델의 성능에 영향을 주는 설정값을 조정함, 
+  이때 여러 설정값의 **랜덤한 조합을 적용**하고, 교차 검증하여  매 조합마다 점수(정확도)를 매겨 성능을 평가함
+
+### 3.3.3. XGBClassifier
+![image](https://user-images.githubusercontent.com/110115061/223614979-f277481a-bd0f-4c96-83dc-add8aa8cf690.png)  
+- 기존 모델의 잔차(오차)를 학습하여 개선된 모델을 만들어가는, 비유하자면 복습에 능한 모델  
+![image](https://user-images.githubusercontent.com/110115061/223615063-dc473999-a3bc-4ac3-9e40-f0d4b8976564.png)  
+- 모델의 성능을 높일 수 있는 RandomizedSearchCV 를 적용
+
+### 3.3.4. LightGBM
+![image](https://user-images.githubusercontent.com/110115061/223615482-79a7e426-cad3-4576-b6e7-7d1d54245af4.png)  
+- XGBoost처럼 복습에 능한 모델이지만 학습 및 예측시간이 비교적 상당히 빠른 편이고 메모리도 더 적게 사용함
+- 다른 모델보다 시간도 훨씬 빠르고, 성능 또한 준수하기 때문에 바로 Optuna로 설정값 조정 진행
+![image](https://user-images.githubusercontent.com/110115061/223615608-b79c1152-3349-4fa3-939a-13c13e829e67.png)  
+- Optuna는 이전 설정값의 성능보다 더 좋은 설정값을 알아서 찾아주는 오픈소스툴
+
+<br/>
+
+## 3.4. 모델 평가
+### 3.4.1. 성능 평가 및 최종모델 선정
+- classification report
+![image](https://user-images.githubusercontent.com/110115061/223616155-649b73a5-5523-4c11-a9ea-04a1ecde5347.png)  
+
+- 혼동행렬
+![image](https://user-images.githubusercontent.com/110115061/223618945-63d9bba9-3c53-4538-a1bc-14e09f936623.png)  
+
+#### ※ 최종모델은 LightGBM모델에 Optuna로 최적화한 모델로 선정함
+- 학습하거나 타겟값을 예측하는 시간이 다른 모델보다 상당히 빠름
+- 빠른 시간 대비 높은 성능을 보여줌
+- 따라서 추가작업, 수정, 보완 등이 원활할 것으로 보임
+- 하이퍼파라미터 최적화 과정 시각화  
+![image](https://user-images.githubusercontent.com/110115061/223627249-0350fac9-6c93-4cce-9885-f34737b7db5f.png)  
+
+### 3.4.2. 최종모델 평가
+- 평가용 데이터 적용  
+![image](https://user-images.githubusercontent.com/110115061/223627390-e4cd1cff-f09c-4d06-a743-cb4e7120937b.png)  
+- 약 79%의 정확도
+- 수리 필요 여부 판단의 F1 score가 다소 떨어짐
+- 특성 순열중요도  
+![image](https://user-images.githubusercontent.com/110115061/223627568-26d659a8-5449-4c08-aa9f-821999560e7d.png)  
+- 3.1.1. 물의 양과 품질이 모델 타겟 예측에 중요한 영향을 미치는지 확인
+  - 모델의 타겟 예측에는 예상대로 quantity의 영향이 컸음, 반면 quality의 영향은 작은 것을 알 수 있음
+  - 경험자의 이야기에 따르면 수자원을 이용하는 주민들은 물이 워낙 귀하다 보니 물의 품질에 대해 그리 까다롭게 굴지 않는다고 함
 
 
 
+---
+<br/>
 
-
-- plotly
+# 4. 결론
+- 데이터를 잘못 예측하는 경우가 아직 많기 때문에 최종모델 단독으로 수자원의 상태를 예측하는 것은 무리가 있음
+- 데이터와 모델 전반으로 추가적인 수정 및 보완이 필요해 보임
+- 하지만 ML모델을 함께 사용하여 탄자니아 전 지역의 우물 상태를 판단하는 것은 유용함
+  - 활용 예시 : 수리가 필요한 water point의 gps좌표 활용(장비운용계획, 스케줄 조율 등)  
+  ![image](https://user-images.githubusercontent.com/110115061/223628042-8200efd0-60d3-4e56-9317-b35a9e2c9b0e.png)  
 
 
